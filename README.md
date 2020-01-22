@@ -26,46 +26,36 @@ as a data source
 
    ```js
    module.exports = {
-      plugins: [
-        {
-          resolve: `gatsby-source-firestore`,
-          options: {
-            // credential or appConfig
-            credential: require(`./credentials.json`),
-            appConfig: {
-              apiKey: "api-key",
-              authDomain: "project-id.firebaseapp.com",
-              databaseURL: "https://project-id.firebaseio.com",
-              projectId: "project-id",
-              storageBucket: "project-id.appspot.com",
-              messagingSenderId: "sender-id",
-              appID: "app-id",
-
-            },
-            types: [
-              {
-                type: `Book`,
-                collection: `books`,
-                map: doc => ({
-                  title: doc.title,
-                  isbn: doc.isbn,
-                  author___NODE: doc.author.id,
-                }),
-              },
-              {
-                type: `Author`,
-                collection: `authors`,
-                map: doc => ({
-                  name: doc.name,
-                  country: doc.country,
-                  books___NODE: doc.books.map(book => book.id),
-                }),
-              },
-            ],
-          },
-        },
-      ],
-    }
+     plugins: [
+       {
+         resolve: `gatsby-source-firestore`,
+         options: {
+           // credential
+           credential: require(`./credentials.json`),
+           types: [
+             {
+               type: `Book`,
+               collection: `books`,
+               map: doc => ({
+                 title: doc.title,
+                 isbn: doc.isbn,
+                 author___NODE: doc.author.id,
+               }),
+             },
+             {
+               type: `Author`,
+               collection: `authors`,
+               map: doc => ({
+                 name: doc.name,
+                 country: doc.country,
+                 books___NODE: doc.books.map(book => book.id),
+               }),
+             },
+           ],
+         },
+       },
+     ],
+   };
    ```
 
    Note that you will need to have `books` and `authors` in Firestore matching
@@ -75,21 +65,21 @@ as a data source
 
 5. Test GraphQL query:
 
-    ```graphql
-    {
-      allBooks {
-        edges {
-          node {
-            title
-            isbn
-            author {
-              name
-            }
-          }
-        }
-      }
-    }
-    ```
+   ```graphql
+   {
+     allBooks {
+       edges {
+         node {
+           title
+           isbn
+           author {
+             name
+           }
+         }
+       }
+     }
+   }
+   ```
 
 ## Configurations
 
