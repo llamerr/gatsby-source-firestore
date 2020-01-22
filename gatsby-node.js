@@ -1,5 +1,5 @@
 const report = require('gatsby-cli/lib/reporter');
-const firebase = require('firebase-admin');
+const admin = require('firebase-admin');
 const crypto = require('crypto');
 
 const getDigest = id =>
@@ -9,48 +9,32 @@ const getDigest = id =>
     .digest('hex');
 
 exports.sourceNodes = async (
-  { boundActionCreators },
-  { types, credential, appConfig }
+  { actions: { createNode } },
+  { credential, types }
 ) => {
-  try {
-    if (firebase.apps || !firebase.apps.length) {
-      const cfg = appConfig ? appConfig : {credential: firebase.credential.cert(credential)}
-      firebase.initializeApp(cfg);
-    }
-  } catch (e) {
-    report.warn(
-      'Could not initialize Firebase. Please check `credential` property in gatsby-config.js'
-    );
-    report.warn(e);
+  if (!credential) {
+    report.error('credential is required');
     return;
   }
-  const db = firebase.firestore();
-  db.settings({
-    timestampsInSnapshots: true,
+
+  admin.initializeApp({
+    credential: admin.credential.cert(credential),
   });
+  const db = admin.firestore();
 
-  const { createNode } = boundActionCreators;
-
-  const promises = types.map(
-    async ({ collection, type, map = node => node }) => {
-      const snapshot = await db.collection(collection).get();
-      for (let doc of snapshot.docs) {
-        const contentDigest = getDigest(doc.id);
-        createNode(
-          Object.assign({}, map(doc.data()), {
-            id: doc.id,
-            parent: null,
-            children: [],
-            internal: {
-              type,
-              contentDigest,
-            },
-          })
-        );
-        Promise.resolve();
-      }
+  for (const { type, collection, map } of types) {
+    const snapshot = await db.collection(collection).get();
+    for (const doc of snapshot.docs) {
+      createNode({
+        id: doc.id,
+        internal: {
+          type,
+          contentDigest: getDigest(doc.id),
+        },
+        ...map(doc.data()),
+      });
     }
-  );
-  await Promise.all(promises);
+  }
+
   return;
 };
