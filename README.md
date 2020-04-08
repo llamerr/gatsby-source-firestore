@@ -1,6 +1,6 @@
 # gatsby-source-firestore
 
-[![npm version](https://badge.fury.io/js/gatsby-source-firestore.svg)](https://badge.fury.io/js/gatsby-source-firestore)
+<!-- [![npm version](https://badge.fury.io/js/gatsby-source-firestore.svg)](https://badge.fury.io/js/gatsby-source-firestore) -->
 
 Gatsby source plugin for building websites using
 [Firebase Firestore](https://firebase.google.com/products/firestore)
@@ -36,7 +36,7 @@ as a data source
              {
                type: `Book`,
                collection: `books`,
-               map: doc => ({
+               map: (doc) => ({
                  title: doc.title,
                  isbn: doc.isbn,
                  author___NODE: doc.author.id,
@@ -45,10 +45,10 @@ as a data source
              {
                type: `Author`,
                collection: `authors`,
-               map: doc => ({
+               map: (doc) => ({
                  name: doc.name,
                  country: doc.country,
-                 books___NODE: doc.books.map(book => book.id),
+                 books___NODE: doc.books.map((book) => book.id),
                }),
              },
            ],
